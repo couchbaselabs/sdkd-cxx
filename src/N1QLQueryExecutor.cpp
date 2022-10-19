@@ -115,11 +115,11 @@ N1QLQueryExecutor::execute(Command cmd, ResultSet& out, const ResultOptions& opt
         }
 
         if (scanConsistency == "request_plus") {
-            request.scan_consistency = couchbase::core::query_scan_consistency::request_plus;
+            request.scan_consistency = couchbase::query_scan_consistency::request_plus;
         } else if (scanConsistency == "at_plus") {
             request.mutation_state = mutation_tokens;
         } else {
-            request.scan_consistency = couchbase::core::query_scan_consistency::not_bounded;
+            request.scan_consistency = couchbase::query_scan_consistency::not_bounded;
         }
 
         auto resp = handle->execute(request);

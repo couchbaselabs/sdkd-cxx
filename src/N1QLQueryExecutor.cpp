@@ -6,9 +6,8 @@ namespace CBSdkd
 bool
 N1QLQueryExecutor::insertDoc(std::vector<std::string>& params, std::vector<std::string>& paramValues)
 {
-
-    std::vector<std::string>::iterator pit = params.begin();
-    std::vector<std::string>::iterator vit = paramValues.begin();
+    auto pit = params.begin();
+    auto vit = paramValues.begin();
 
     Json::Value doc;
     doc["id"] = std::to_string(handle->hid);
@@ -20,9 +19,9 @@ N1QLQueryExecutor::insertDoc(std::vector<std::string>& params, std::vector<std::
     std::string val = Json::FastWriter().write(doc);
     auto value = couchbase::core::utils::to_binary(val);
     std::string key = doc["id"].asString();
-    pair<string, string> collection = handle->getCollection(key);
+    const auto [scope, collection] = handle->getCollection(key);
 
-    couchbase::core::document_id id(handle->options.bucket, collection.first, collection.second, key);
+    couchbase::core::document_id id(handle->options.bucket, scope, collection, key);
     couchbase::core::operations::upsert_request req{ id, value };
     auto resp = handle->execute(req);
 
@@ -45,22 +44,24 @@ N1QLQueryExecutor::execute(Command cmd, ResultSet& out, const ResultOptions& opt
     std::string indexName = req.payload[CBSDKD_MSGFLD_NQ_DEFAULT_INDEX_NAME].asString();
     std::string preparedStr = req.payload[CBSDKD_MSGFLD_NQ_PREPARED].asString();
     std::string flexStr = req.payload[CBSDKD_MSGFLD_NQ_FLEX].asString();
-    bool prepared, flex;
+    bool prepared;
+    bool flex;
     istringstream(preparedStr) >> std::boolalpha >> prepared;
     istringstream(flexStr) >> std::boolalpha >> flex;
 
     std::string scope = "0";
     std::string collection = "0";
 
-    std::vector<std::string> params, paramValues;
+    std::vector<std::string> params;
+    std::vector<std::string> paramValues;
     N1QL::split(req.payload[CBSDKD_MSGFLD_NQ_PARAM].asString(), ',', params);
     N1QL::split(req.payload[CBSDKD_MSGFLD_NQ_PARAMVALUES].asString(), ',', paramValues);
     std::string scanConsistency = req.payload[CBSDKD_MSGFLD_NQ_SCANCONSISTENCY].asString();
-    params.push_back("handleid");
+    params.emplace_back("handleid");
     paramValues.push_back(std::to_string(handle->hid));
 
     int ii = 0;
-    params.push_back("unique_id");
+    params.emplace_back("unique_id");
     paramValues.push_back(std::to_string(ii));
 
     out.clear();
@@ -75,7 +76,7 @@ N1QLQueryExecutor::execute(Command cmd, ResultSet& out, const ResultOptions& opt
         insertDoc(params, paramValues);
         out.scan_consistency = scanConsistency;
 
-        std::string q = std::string("select * from `") + this->handle->options.bucket.c_str() + "`";
+        std::string q = std::string("select * from `") + this->handle->options.bucket + "`";
         if (handle->options.useCollections) {
             q = std::string("select * from `") + collection + "`";
         }
@@ -83,8 +84,8 @@ N1QLQueryExecutor::execute(Command cmd, ResultSet& out, const ResultOptions& opt
         if (indexType == "secondary") {
             q += std::string(" where ");
             bool isFirst = true;
-            std::vector<std::string>::iterator pit = params.begin();
-            std::vector<std::string>::iterator vit = paramValues.begin();
+            auto pit = params.begin();
+            auto vit = paramValues.begin();
 
             for (; pit != params.end(); pit++, vit++) {
                 if (!isFirst) {
@@ -103,16 +104,18 @@ N1QLQueryExecutor::execute(Command cmd, ResultSet& out, const ResultOptions& opt
         couchbase::core::operations::query_request request{};
         request.adhoc = !prepared;
         request.flex_index = flex;
-        request.bucket_name = handle->options.bucket;
+        if (!handle->options.bucket.empty()) {
+            if (handle->options.useCollections) {
+                request.query_context = fmt::format("default:`{}`.`{}`", handle->options.bucket, scope);
+            } else {
+                request.query_context = fmt::format("default:`{}`", handle->options.bucket);
+            }
+        }
         request.statement = q;
         request.row_callback = [&rows](std::string&& row) {
             rows.emplace_back(std::move(row));
             return couchbase::core::utils::json::stream_control::next_row;
         };
-
-        if (handle->options.useCollections) {
-            request.scope_name = scope;
-        }
 
         if (scanConsistency == "request_plus") {
             request.scan_consistency = couchbase::query_scan_consistency::request_plus;

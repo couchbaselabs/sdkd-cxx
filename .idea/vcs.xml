@@ -4,6 +4,5 @@
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/src/contrib/cliopts" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/src/contrib/json-cpp" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/src/contrib/jsonsl" vcs="Git" />
   </component>
 </project>

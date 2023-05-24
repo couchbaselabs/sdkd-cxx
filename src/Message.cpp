@@ -49,6 +49,7 @@ Message::refreshWith(const std::string& str, bool reset)
         return false;
     }
 
+    CB_LOG_TRACE("SDKD <- {}", str);
     this->reqid = json[CBSDKD_MSGFLD_REQID].asUInt();
     this->handle_id = json[CBSDKD_MSGFLD_HID].asUInt();
     this->command = Command(json[CBSDKD_MSGFLD_CMD].asString());

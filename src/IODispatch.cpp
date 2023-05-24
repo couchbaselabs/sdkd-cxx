@@ -242,7 +242,8 @@ void
 IOProtoHandler::writeResponse(const Response& res)
 {
     std::string encoded = res.encode();
-    log_debug("Encoded: %s\n", encoded.c_str());
+    CB_LOG_TRACE("SDKD -> {}", encoded);
+
     if (encoded.at(encoded.size()-1) != '\n') {
         encoded += '\n';
     }

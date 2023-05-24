@@ -104,12 +104,8 @@ N1QLQueryExecutor::execute(Command cmd, ResultSet& out, const ResultOptions& opt
         couchbase::core::operations::query_request request{};
         request.adhoc = !prepared;
         request.flex_index = flex;
-        if (!handle->options.bucket.empty()) {
-            if (handle->options.useCollections) {
-                request.query_context = fmt::format("default:`{}`.`{}`", handle->options.bucket, scope);
-            } else {
-                request.query_context = fmt::format("default:`{}`", handle->options.bucket);
-            }
+        if (handle->options.useCollections && !handle->options.bucket.empty()) {
+            request.query_context = fmt::format("default:`{}`.`{}`", handle->options.bucket, scope);
         }
         request.statement = q;
         request.row_callback = [&rows](std::string&& row) {

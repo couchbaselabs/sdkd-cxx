@@ -382,6 +382,12 @@ MainDispatch::getDatasetById(const std::string& dsid)
 
 std::string
 MainDispatch::uploadLogs(Json::Value payload) {
+    if (!payload[CBSDKD_MSGFLD_S3_BUCKET].isString() ||
+        !payload[CBSDKD_MSGFLD_S3_ACCESSS].isString() ||
+        !payload[CBSDKD_MSGFLD_S3_SECRET].isString()) {
+        return "";
+    }
+
     char command[1024], urlbuf[1024];
     memset(command, '\0', sizeof command);
     sprintf(command, "python3 pylib/s3upload.py %s %s %s %s cpp", payload[CBSDKD_MSGFLD_S3_BUCKET].asCString(), payload[CBSDKD_MSGFLD_S3_ACCESSS].asCString(), payload[CBSDKD_MSGFLD_S3_SECRET].asCString(), Daemon::MainDaemon->getOptions().lcblogFile);

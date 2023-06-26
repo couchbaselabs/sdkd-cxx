@@ -70,7 +70,7 @@ WorkerDispatch::initializeHandle(const Request &req)
         auto ec = parent->ensureCluster(origin, hOpts.bucket);
 
         if (ec) {
-            err.errstr = ec.message();
+            err = Error(Error::SUBSYSf_SDKD, Error::SDKD_EINVAL, ec.message());
             goto GT_ERR;
         }
     }
@@ -88,7 +88,7 @@ WorkerDispatch::initializeHandle(const Request &req)
     }
 
     GT_ERR:
-    if (err == 0) {
+    if (!err) {
         writeResponse(Response(req));
 
     } else {

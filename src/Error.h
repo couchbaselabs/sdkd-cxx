@@ -117,11 +117,12 @@ public:
         return ss.str();
     }
 
-    void operator=(Code v) {
-        this->code = v;
+    Error& operator=(Code v) {
+        code = v;
         if (!v) {
-            this->errstr = "";
+            errstr = "";
         }
+        return *this;
     }
 
     Code code;

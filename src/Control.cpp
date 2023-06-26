@@ -39,6 +39,7 @@ MainDispatch::~MainDispatch()
         auto f = barrier->get_future();
         cluster->close([barrier]() { barrier->set_value(); });
         f.get();
+        cluster = nullptr;
     }
 
     for (auto& t : io_threads) {
@@ -80,6 +81,7 @@ MainDispatch::ensureCluster(couchbase::core::origin origin, const std::string& b
         auto f = barrier->get_future();
         cluster->open(origin, [barrier](std::error_code ec) mutable { barrier->set_value(ec); });
         ec = f.get();
+        CB_LOG_TRACE("open cluster: {}", ec.message());
     }
 
     if (!ec) {
@@ -87,6 +89,7 @@ MainDispatch::ensureCluster(couchbase::core::origin origin, const std::string& b
         auto f = barrier->get_future();
         cluster->open_bucket(bucket, [barrier](std::error_code ec) mutable { barrier->set_value(ec); });
         ec = f.get();
+        CB_LOG_TRACE("open bucket \"{}\": {}", bucket, ec.message());
     }
 
     if (!ec) {

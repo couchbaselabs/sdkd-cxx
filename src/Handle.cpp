@@ -10,6 +10,8 @@
 #include <couchbase/lookup_in_specs.hxx>
 #include <couchbase/mutate_in_specs.hxx>
 
+#include <couchbase/build_version.hxx>
+
 namespace CBSdkd
 {
 
@@ -27,16 +29,11 @@ Handle::VersionInfoJson(Json::Value& res)
 
     const DaemonOptions& dOpts = Daemon::MainDaemon ? Daemon::MainDaemon->getOptions() : DaemonOptions();
 
-    rtComponents["SDKVersion"] = "";
-    hdrComponents["SDKVersion"] = "";
-
-// Thanks mauke
-#define STRINGIFY_(X) #X
-#define STRINGIFY(X) STRINGIFY_(X)
-    hdrComponents["CHANGESET"] = "";
+    rtComponents["SDKVersion"] = couchbase::core::meta::sdk_version();
+    hdrComponents["SDKVersion"] = fmt::format(
+      "cxx/{}.{}.{}", COUCHBASE_CXX_CLIENT_VERSION_MAJOR, COUCHBASE_CXX_CLIENT_VERSION_MINOR, COUCHBASE_CXX_CLIENT_VERSION_PATCH);
+    hdrComponents["CHANGESET"] = COUCHBASE_CXX_CLIENT_GIT_REVISION;
     fprintf(stderr, " SDK version changeset %s\n", hdrComponents["CHANGESET"].asString().c_str());
-#undef STRINGIFY
-#undef STRINGIFY_
 
     config["RECONNECT"] = dOpts.noPersist;
 

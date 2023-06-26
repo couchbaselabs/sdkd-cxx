@@ -29,6 +29,7 @@ set(COUCHBASE_CXX_CLIENT_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(COUCHBASE_CXX_CLIENT_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
 set(COUCHBASE_CXX_CLIENT_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 add_subdirectory(${CXX_ROOT} couchbase-cxx-client)
+include_directories(${PROJECT_BINARY_DIR}/couchbase-cxx-client/generated)
 
 LIST(APPEND LD_DEPS
             couchbase_cxx_client)

@@ -68,7 +68,8 @@ Daemon::runServer()
         exit(1);
     }
 
-    log_noctx_info("Listening on port %d", ntohs(listenAddr.sin_port));
+    auto build_info = couchbase::core::meta::sdk_build_info_json();
+    log_noctx_info("Listening on port %d. %s", ntohs(listenAddr.sin_port), build_info.c_str());
     writePortInfo();
     server.run();
 }

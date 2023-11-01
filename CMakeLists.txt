@@ -32,7 +32,9 @@ add_subdirectory(${CXX_ROOT} couchbase-cxx-client)
 include_directories(${PROJECT_BINARY_DIR}/couchbase-cxx-client/generated)
 
 LIST(APPEND LD_DEPS
-            couchbase_cxx_client)
+            couchbase_cxx_client
+            asio
+            Microsoft.GSL::GSL)
 
 SET(COMMON_SOURCES
     src/Control.cpp

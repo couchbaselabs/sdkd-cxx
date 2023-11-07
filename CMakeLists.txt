@@ -34,6 +34,7 @@ include_directories(${PROJECT_BINARY_DIR}/couchbase-cxx-client/generated)
 LIST(APPEND LD_DEPS
             couchbase_cxx_client
             asio
+            taocpp::json
             Microsoft.GSL::GSL)
 
 SET(COMMON_SOURCES

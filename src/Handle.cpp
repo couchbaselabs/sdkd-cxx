@@ -9,8 +9,21 @@
 #include "sdkd_internal.h"
 #include <couchbase/lookup_in_specs.hxx>
 #include <couchbase/mutate_in_specs.hxx>
-
 #include <couchbase/build_version.hxx>
+#include <core/meta/version.hxx>
+
+#include <core/operations/document_get.hxx>
+#include <core/operations/document_upsert.hxx>
+#include <core/operations/document_insert.hxx>
+#include <core/operations/document_remove.hxx>
+#include <core/operations/document_touch.hxx>
+#include <core/operations/document_lookup_in.hxx>
+#include <core/operations/document_mutate_in.hxx>
+#include <core/operations/document_replace.hxx>
+#include <core/operations/document_append.hxx>
+#include <core/operations/document_prepend.hxx>
+#include <core/operations/document_increment.hxx>
+#include <core/operations/document_decrement.hxx>
 
 namespace CBSdkd
 {
@@ -139,9 +152,9 @@ Handle::VersionInfoJson(Json::Value& res)
 
 } /* extern "C" */
 
-Handle::Handle(const HandleOptions& opts, std::shared_ptr<couchbase::core::cluster> cluster)
+Handle::Handle(const HandleOptions& opts, couchbase::core::cluster cluster)
   : options(opts)
-  , cluster(cluster)
+  , cluster(std::move(cluster))
 {
 }
 
@@ -204,7 +217,7 @@ Handle::dsGet(Command cmd, Dataset const& ds, ResultSet& out, const ResultOption
     do_cancel = false;
 
     DatasetIterator* iter = ds.getIter();
-    for (iter->start(); iter->done() == false && do_cancel == false; iter->advance()) {
+    for (iter->start(); !iter->done() && !do_cancel; iter->advance()) {
 
         std::string k = iter->key();
 

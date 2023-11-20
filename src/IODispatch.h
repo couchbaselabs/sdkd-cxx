@@ -106,10 +106,10 @@ public:
     std::string uploadLogs(Json::Value payload);
 
     std::error_code ensureCluster(couchbase::core::origin origin, const std::string& bucket);
-    std::shared_ptr<couchbase::core::cluster> getCluster();
+    couchbase::core::cluster getCluster();
 
   private:
-    sdkd_socket_t acceptfd;
+    sdkd_socket_t acceptfd{-1};
 
     void create_new_ds(const Request* req);
 
@@ -135,7 +135,7 @@ public:
 
     std::vector<std::thread> io_threads{};
     asio::io_context io{};
-    std::shared_ptr<couchbase::core::cluster> cluster{};
+    couchbase::core::cluster cluster{io};
     bool cluster_initialized{ false };
 };
 

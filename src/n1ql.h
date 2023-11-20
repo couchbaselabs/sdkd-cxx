@@ -8,6 +8,8 @@
 
 #include "sdkd_internal.h"
 
+#include <couchbase/mutation_token.hxx>
+
 namespace CBSdkd {
 
 class N1QL : protected DebugContext {

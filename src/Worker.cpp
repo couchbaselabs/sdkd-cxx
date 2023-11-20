@@ -1,5 +1,7 @@
 #include "sdkd_internal.h"
 
+#include <core/utils/connection_string.hxx>
+
 namespace CBSdkd {
 
 

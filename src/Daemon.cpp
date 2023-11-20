@@ -1,4 +1,6 @@
 #include "sdkd_internal.h"
+#include "core/meta/version.hxx"
+
 #include <iostream>
 #include <algorithm>
 

@@ -1,5 +1,19 @@
 #include "sdkd_internal.h"
 
+#include <core/operations/document_query.hxx>
+#include <core/operations/document_get.hxx>
+#include <core/operations/document_upsert.hxx>
+#include <core/operations/document_insert.hxx>
+#include <core/operations/document_remove.hxx>
+#include <core/operations/document_touch.hxx>
+#include <core/operations/document_lookup_in.hxx>
+#include <core/operations/document_mutate_in.hxx>
+#include <core/operations/document_replace.hxx>
+#include <core/operations/document_append.hxx>
+#include <core/operations/document_prepend.hxx>
+#include <core/operations/document_increment.hxx>
+#include <core/operations/document_decrement.hxx>
+
 namespace CBSdkd
 {
 

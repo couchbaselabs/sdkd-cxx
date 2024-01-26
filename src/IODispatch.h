@@ -93,6 +93,8 @@ class WorkerHandle;
 class MainDispatch : public IODispatch {
 
 public:
+    static const int max_io_threads_supported_by_sdk {1};
+
     MainDispatch();
     virtual ~MainDispatch();
 

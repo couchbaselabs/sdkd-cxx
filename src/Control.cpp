@@ -10,7 +10,7 @@ MainDispatch::MainDispatch()
     dsmutex = Mutex::Create();
     wmutex = Mutex::Create();
     isCollectingStats = false;
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < max_io_threads_supported_by_sdk; i++) {
         io_threads.emplace_back(std::thread([this]() { io.run(); }));
     }
 }

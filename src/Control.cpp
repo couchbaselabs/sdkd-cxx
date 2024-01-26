@@ -148,6 +148,11 @@ MainDispatch::_collect_workers()
     }
 }
 
+static void removeTrailingWhitespace(std::string &str) {
+    auto last_non_whitespace = std::find_if(str.rbegin(), str.rend(), [](unsigned char c) { return !std::isspace(c); });
+    str.erase(last_non_whitespace.base(), str.end());
+}
+
 bool
 MainDispatch::dispatchCommand(Request *reqp)
 {
@@ -206,6 +211,7 @@ MainDispatch::dispatchCommand(Request *reqp)
         isCollectingStats = true;
     } else if (reqp->command == Command::UPLOADLOGS) {
         std::string url = uploadLogs(reqp->payload);
+        removeTrailingWhitespace(url);
         Response res = Response(reqp);
         Json::Value val;
         val["url"] = url;

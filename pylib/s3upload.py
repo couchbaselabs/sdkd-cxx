@@ -54,11 +54,15 @@ if __name__ == "__main__":
 
     with tarfile.open(compressed_file, 'w:gz') as tar:
         for file in log_files:
-            tar.add(file, arcname=os.path.basename(file))
+            base_name = os.path.basename(file)
+            print("Add {} to {}".format(base_name, compressed_file), file=sys.stderr)
+            tar.add(file, arcname=base_name)
 
     upload = upload_to_aws(compressed_file, sdk)
     if upload:
-        print("http://{0}.s3.amazonaws.com/{1}-{2}/{3}".format(S3_BUCKET, S3_DIR, sdk, compressed_file))
+        url = "http://{0}.s3.amazonaws.com/{1}-{2}/{3}".format(S3_BUCKET, S3_DIR, sdk, compressed_file)
+        print("Uploaded logs to {}".format(url), file=sys.stderr)
+        print(url)
     else:
         print("Failed to upload logs")
     os.remove(compressed_file)

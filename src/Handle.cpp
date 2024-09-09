@@ -43,8 +43,7 @@ Handle::VersionInfoJson(Json::Value& res)
     const DaemonOptions& dOpts = Daemon::MainDaemon ? Daemon::MainDaemon->getOptions() : DaemonOptions();
 
     rtComponents["SDKVersion"] = couchbase::core::meta::sdk_version();
-    hdrComponents["SDKVersion"] = fmt::format(
-      "cxx/{}.{}.{}", COUCHBASE_CXX_CLIENT_VERSION_MAJOR, COUCHBASE_CXX_CLIENT_VERSION_MINOR, COUCHBASE_CXX_CLIENT_VERSION_PATCH);
+    hdrComponents["SDKVersion"] = couchbase::core::meta::sdk_version_short();
     hdrComponents["CHANGESET"] = COUCHBASE_CXX_CLIENT_GIT_REVISION;
     fprintf(stderr, " SDK version changeset %s\n", hdrComponents["CHANGESET"].asString().c_str());
 

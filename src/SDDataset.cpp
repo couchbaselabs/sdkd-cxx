@@ -1,6 +1,7 @@
 #include "sdkd_internal.h"
 
-namespace CBSdkd {
+namespace CBSdkd
+{
 
 bool
 SDDataset::verify_spec(void)
@@ -15,33 +16,30 @@ SDDataset::verify_spec(void)
 }
 
 SDDataset::SDDataset(const Json::Value& jspec, bool load)
-: Dataset(Dataset::DSTYPE_SD)
+  : Dataset(Dataset::DSTYPE_SD)
 {
-    struct SDDatasetSpecification *spec = &this->spec;
+    struct SDDatasetSpecification* spec = &this->spec;
     spec->load = load;
     if (load) {
-        const Json::Value &doc = jspec[CBSDKD_MSGFLD_SD_SCHEMA].asString();
+        const Json::Value& doc = jspec[CBSDKD_MSGFLD_SD_SCHEMA].asString();
         spec->doc = doc;
 
     } else {
         spec->command = jspec[CBSDKD_MSGFLD_SD_COMMAND].asString();
         spec->path = jspec[CBSDKD_MSGFLD_SD_PATH].asString();
         spec->value = jspec[CBSDKD_MSGFLD_SD_VALUE].asString();
-
     }
 
     spec->count = jspec[CBSDKD_MSGFLD_SD_COUNT].asUInt();
-    spec->continuous = jspec[CBSDKD_MSGFLD_DSREQ_CONTINUOUS].asTruthVal();
+    spec->continuous = jspec[CBSDKD_MSGFLD_DSREQ_CONTINUOUS].asBool();
     verify_spec();
-
 }
 
 SDDataset::SDDataset(const struct SDDatasetSpecification& spec)
-: Dataset(Dataset::DSTYPE_SD)
+  : Dataset(Dataset::DSTYPE_SD)
 {
     this->spec = spec;
 }
-
 
 SDDatasetIterator*
 SDDataset::getIter() const
@@ -50,24 +48,22 @@ SDDataset::getIter() const
 }
 
 unsigned int
-SDDataset::getCount() const {
+SDDataset::getCount() const
+{
     return spec.count;
 }
 
-
-SDDatasetIterator::SDDatasetIterator(
-        const struct SDDatasetSpecification *spec)
+SDDatasetIterator::SDDatasetIterator(const struct SDDatasetSpecification* spec)
 {
     this->spec = spec;
 }
-
 
 void
 SDDatasetIterator::advance()
 {
     curidx++;
     if (spec->continuous && curidx >= spec->count) {
-      curidx = 0;
+        curidx = 0;
     }
     init_data(curidx);
 }
@@ -79,8 +75,9 @@ SDDatasetIterator::init_data(int idx)
         Json::Value doc = spec->doc;
         this->curv = Json::FastWriter().write(doc);
         std::string newcurv;
-        for(std::string::iterator it = this->curv.begin(); it != this->curv.end(); ++it) {
-            if (*it != '\\' && it != this->curv.begin() && it != this->curv.end()-2 && it != this->curv.end() -1 && it != this->curv.end()) {
+        for (std::string::iterator it = this->curv.begin(); it != this->curv.end(); ++it) {
+            if (*it != '\\' && it != this->curv.begin() && it != this->curv.end() - 2 && it != this->curv.end() - 1 &&
+                it != this->curv.end()) {
                 newcurv += *it;
             }
         }
@@ -94,7 +91,8 @@ SDDatasetIterator::init_data(int idx)
 }
 
 bool
-SDDatasetIterator::done() {
+SDDatasetIterator::done()
+{
 
     if (this->spec->continuous) {
         return false;

@@ -1,5 +1,7 @@
 #include "sdkd_internal.h"
+
 #include <cstdio>
+#include <filesystem>
 #include <cstdlib>
 #include <string>
 #include <sstream>
@@ -16,30 +18,32 @@ using namespace CBSdkd;
 DebugContext CBSdkd::CBsdkd_Global_Debug_Context;
 Daemon* Daemon::MainDaemon = NULL;
 
-class Program {
-public:
-    Program(int argc, char **argv);
-    virtual ~Program() { }
+class Program
+{
+  public:
+    Program(int argc, char** argv);
+    virtual ~Program()
+    {
+    }
     int printVersion;
     DaemonOptions userOptions;
 
-private:
-    bool parseLegacyArgs(int argc, char **argv);
-    bool parseCliOptions(int argc, char **argv);
+  private:
+    bool parseLegacyArgs(int argc, char** argv);
+    bool parseCliOptions(int argc, char** argv);
 };
 
 bool
-Program::parseLegacyArgs(int argc, char **argv)
+Program::parseLegacyArgs(int argc, char** argv)
 {
     std::string kvpair;
-    std::map<std::string,std::string> opt_pairs;
+    std::map<std::string, std::string> opt_pairs;
 
     for (int ii = 1; ii < argc; ii++) {
         istringstream iss(argv[ii]);
 
-        while(getline(iss, kvpair, ',')) {
-            opt_pairs[kvpair.substr(0, kvpair.find_first_of('='))] =
-                    kvpair.substr(kvpair.find_first_of('=')+1);
+        while (getline(iss, kvpair, ',')) {
+            opt_pairs[kvpair.substr(0, kvpair.find_first_of('='))] = kvpair.substr(kvpair.find_first_of('=') + 1);
         }
     }
 
@@ -56,43 +60,34 @@ Program::parseLegacyArgs(int argc, char **argv)
 }
 
 bool
-Program::parseCliOptions(int argc, char **argv)
+Program::parseCliOptions(int argc, char** argv)
 {
     cliopts_entry entries[] = {
-        {'L', "lcb log file", CLIOPTS_ARGT_STRING, &userOptions.lcblogFile,
-            "Log file",
-            "LCB LOG FILE"
-        },
-        { 'd', "debug", CLIOPTS_ARGT_INT, &userOptions.debugLevel,
-            "Level (0=off, 1=most verbose, higher numbers less verbsose)",
-            "LEVEL"
-        },
+        { 'L', "lcb log file", CLIOPTS_ARGT_STRING, &userOptions.lcblogFile, "Log file", "LCB LOG FILE" },
+        { 'd', "debug", CLIOPTS_ARGT_INT, &userOptions.debugLevel, "Level (0=off, 1=most verbose, higher numbers less verbsose)", "LEVEL" },
 
-        { 'c', "color", CLIOPTS_ARGT_NONE, &userOptions.debugColors,
-            "Whether to use color logging" },
+        { 'c', "color", CLIOPTS_ARGT_NONE, &userOptions.debugColors, "Whether to use color logging" },
 
-        { 'f', "portfile", CLIOPTS_ARGT_STRING, &userOptions.portFile,
-            "File to write port information (if listening on random port)",
-            "FILE"
-        },
+        { 'f',
+          "portfile",
+          CLIOPTS_ARGT_STRING,
+          &userOptions.portFile,
+          "File to write port information (if listening on random port)",
+          "FILE" },
 
-        { 'l', "listen", CLIOPTS_ARGT_UINT, &userOptions.portNumber,
-            "Port to listen on",
-            "PORT"
-        },
+        { 'l', "listen", CLIOPTS_ARGT_UINT, &userOptions.portNumber, "Port to listen on", "PORT" },
 
-        { 'P', "persist", CLIOPTS_ARGT_NONE, &userOptions.isPersistent,
-            "Keep running after GOODBYEs",
+        {
+          'P',
+          "persist",
+          CLIOPTS_ARGT_NONE,
+          &userOptions.isPersistent,
+          "Keep running after GOODBYEs",
         },
 
-        { 0, "ttl", CLIOPTS_ARGT_INT, &userOptions.initialTTL,
-            "TTL For daemon"
-        },
+        { 0, "ttl", CLIOPTS_ARGT_INT, &userOptions.initialTTL, "TTL For daemon" },
 
-        { 'V', "version", CLIOPTS_ARGT_NONE, &printVersion,
-            "Print versions and exit"
-        },
-
+        { 'V', "version", CLIOPTS_ARGT_NONE, &printVersion, "Print versions and exit" },
 
         { 0 }
     };
@@ -100,10 +95,10 @@ Program::parseCliOptions(int argc, char **argv)
     int last_arg;
     cliopts_parse_options(entries, argc, argv, &last_arg, NULL);
     return true;
-
 }
 
-Program::Program(int argc, char **argv) : printVersion(0)
+Program::Program(int argc, char** argv)
+  : printVersion(0)
 {
     if (argc < 2) {
         fprintf(stderr, "Usage: %s [option=value...]\n", argv[0]);
@@ -124,7 +119,7 @@ Program::Program(int argc, char **argv) : printVersion(0)
 }
 
 int
-main(int argc, char **argv)
+main(int argc, char** argv)
 {
 
 #ifdef _WIN32
@@ -136,11 +131,12 @@ main(int argc, char **argv)
     rv = WSAStartup(wVersionRequested, &wsaData);
     assert(rv == 0);
 #else
-    FILE *fp;
+    FILE* fp;
     fp = fopen(PID_FILE, "w");
     if (!fp) {
-        fprintf(stderr, "Cannot open pid file %s for writing", PID_FILE);
-        exit(1);
+        auto pid_path = (std::filesystem::current_path() / "sdkd-cpp.pid").string();
+        fprintf(stderr, "Cannot open pid file %s for writing, use %s", PID_FILE, pid_path.c_str());
+        fp = fopen(pid_path.c_str(), "w");
     }
     fprintf(fp, "%d", (int)getpid());
     fclose(fp);

@@ -7,7 +7,8 @@
 
 #include "sdkd_internal.h"
 
-namespace CBSdkd {
+namespace CBSdkd
+{
 
 bool
 N1QLDataset::verify_spec(void)
@@ -27,35 +28,35 @@ N1QLDataset::verify_spec(void)
 }
 
 N1QLDataset::N1QLDataset(const Json::Value& jspec)
-: Dataset(Dataset::DSTYPE_N1QL)
+  : Dataset(Dataset::DSTYPE_N1QL)
 {
-    struct N1QLDatasetSpecification *spec = &this->spec;
+    struct N1QLDatasetSpecification* spec = &this->spec;
 
     split(jspec[CBSDKD_MSGFLD_NQ_PARAM].asString(), ',', spec->params);
     split(jspec[CBSDKD_MSGFLD_NQ_PARAMVALUES].asString(), ',', spec->paramValues);
 
     spec->count = jspec[CBSDKD_MSGFLD_NQ_COUNT].asUInt();
-    spec->continuous = jspec[CBSDKD_MSGFLD_DSREQ_CONTINUOUS].asTruthVal();
+    spec->continuous = jspec[CBSDKD_MSGFLD_DSREQ_CONTINUOUS].asBool();
     verify_spec();
-
 }
 
 N1QLDataset::N1QLDataset(const struct N1QLDatasetSpecification& spec)
-: Dataset(Dataset::DSTYPE_N1QL)
+  : Dataset(Dataset::DSTYPE_N1QL)
 {
     this->spec = spec;
 }
 
 void
-N1QLDataset::split(const std::string &s, char delim, std::vector<std::string> &elems) {
-        std::stringstream ss(s);
-        std::string item;
+N1QLDataset::split(const std::string& s, char delim, std::vector<std::string>& elems)
+{
+    std::stringstream ss(s);
+    std::string item;
 
-        while(std::getline(ss, item, delim)) {
-            if (!item.empty()) {
-                elems.push_back(item);
-            }
+    while (std::getline(ss, item, delim)) {
+        if (!item.empty()) {
+            elems.push_back(item);
         }
+    }
 }
 
 N1QLDatasetIterator*
@@ -65,17 +66,15 @@ N1QLDataset::getIter() const
 }
 
 unsigned int
-N1QLDataset::getCount() const {
+N1QLDataset::getCount() const
+{
     return spec.count;
 }
 
-
-N1QLDatasetIterator::N1QLDatasetIterator(
-        const struct N1QLDatasetSpecification *spec)
+N1QLDatasetIterator::N1QLDatasetIterator(const struct N1QLDatasetSpecification* spec)
 {
     this->spec = spec;
 }
-
 
 void
 N1QLDatasetIterator::advance()
@@ -97,7 +96,7 @@ N1QLDatasetIterator::init_data(int idx)
     Json::Value doc;
 
     doc["id"] = std::to_string(idx);
-    for(;pit<params.end(); pit++, vit++) {
+    for (; pit < params.end(); pit++, vit++) {
         doc[*pit] = *vit;
     }
 
@@ -106,7 +105,8 @@ N1QLDatasetIterator::init_data(int idx)
 }
 
 bool
-N1QLDatasetIterator::done() {
+N1QLDatasetIterator::done()
+{
 
     if (this->spec->continuous) {
         // Continuous always returns True
@@ -118,4 +118,4 @@ N1QLDatasetIterator::done() {
     }
     return false;
 }
-}
+} // namespace CBSdkd

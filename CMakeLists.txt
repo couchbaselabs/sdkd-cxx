@@ -11,13 +11,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(SOURCE_ROOT ${CMAKE_SOURCE_DIR})
 set(CONTRIB_ROOT ${CMAKE_SOURCE_DIR}/src/contrib)
-set(JSONCPP_ROOT ${CONTRIB_ROOT}/json-cpp)
 set(JSONSL_ROOT ${CONTRIB_ROOT}/jsonsl)
 set(CLIOPTS_ROOT ${CONTRIB_ROOT}/cliopts)
 
 INCLUDE_DIRECTORIES(
     ${SOURCE_ROOT}
-    ${JSONCPP_ROOT}/dist
     ${CLIOPTS_ROOT}
     ${CXX_ROOT})
 
@@ -35,7 +33,19 @@ LIST(APPEND LD_DEPS
             couchbase_cxx_client
             asio
             taocpp::json
+            jsoncpp
             Microsoft.GSL::GSL)
+
+find_package(jsoncpp)
+IF(NOT jsoncpp_FOUND)
+    find_package(PkgConfig)
+    IF(PkgConfig_FOUND)
+        pkg_check_modules(JSONCPP jsoncpp REQUIRED IMPORTED_TARGET)
+        IF(JSONCPP_FOUND)
+            add_library(jsoncpp ALIAS PkgConfig::JSONCPP)
+        ENDIF()
+    ENDIF()
+ENDIF()
 
 SET(COMMON_SOURCES
     src/Control.cpp
@@ -69,8 +79,7 @@ SET(COMMON_SOURCES
     src/sockutil.c
 
     ${CONTRIB_ROOT}/debug.c
-    ${CLIOPTS_ROOT}/cliopts.c
-    ${JSONCPP_ROOT}/dist/jsoncpp.cpp)
+    ${CLIOPTS_ROOT}/cliopts.c)
 
 IF(${WIN32})
     SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})

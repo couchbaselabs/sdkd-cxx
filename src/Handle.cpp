@@ -10,6 +10,7 @@
 #include <couchbase/lookup_in_specs.hxx>
 #include <couchbase/mutate_in_specs.hxx>
 #include <couchbase/build_version.hxx>
+#include <couchbase/codec/tao_json_serializer.hxx>
 #include <core/meta/version.hxx>
 
 #include <core/operations/document_get.hxx>

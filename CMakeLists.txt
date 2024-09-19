@@ -26,14 +26,24 @@ set(COUCHBASE_CXX_CLIENT_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(COUCHBASE_CXX_CLIENT_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(COUCHBASE_CXX_CLIENT_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
 set(COUCHBASE_CXX_CLIENT_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(COUCHBASE_CXX_CLIENT_BUILD_SHARED OFF CACHE BOOL "" FORCE)
+set(COUCHBASE_CXX_CLIENT_BUILD_STATIC ON CACHE BOOL "" FORCE)
+set(COUCHBASE_CXX_CLIENT_INSTALL OFF CACHE BOOL "" FORCE)
 add_subdirectory(${CXX_ROOT} couchbase-cxx-client)
 include_directories(${PROJECT_BINARY_DIR}/couchbase-cxx-client/generated)
 
+set(CXX_SDK_TARGET couchbase_cxx_client::couchbase_cxx_client)
+if(NOT TARGET ${CXX_SDK_TARGET})
+    set(CXX_SDK_TARGET couchbase_cxx_client::couchbase_cxx_client_static)
+endif()
+
 LIST(APPEND LD_DEPS
-            couchbase_cxx_client
+            ${CXX_SDK_TARGET}
             asio
             taocpp::json
             jsoncpp
+            spdlog::spdlog
+            fmt::fmt
             Microsoft.GSL::GSL)
 
 find_package(jsoncpp)

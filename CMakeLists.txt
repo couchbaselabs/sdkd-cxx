@@ -41,18 +41,19 @@ LIST(APPEND LD_DEPS
             ${CXX_SDK_TARGET}
             asio
             taocpp::json
-            jsoncpp
             spdlog::spdlog
-            fmt::fmt
             Microsoft.GSL::GSL)
 
 find_package(jsoncpp)
-IF(NOT jsoncpp_FOUND)
+IF(jsoncpp_FOUND)
+    LIST(APPEND LD_DEPS JsonCpp::JsonCpp)
+ELSE()
     find_package(PkgConfig)
     IF(PkgConfig_FOUND)
         pkg_check_modules(JSONCPP jsoncpp REQUIRED IMPORTED_TARGET)
         IF(JSONCPP_FOUND)
             add_library(jsoncpp ALIAS PkgConfig::JSONCPP)
+            LIST(APPEND LD_DEPS jsoncpp)
         ENDIF()
     ENDIF()
 ENDIF()

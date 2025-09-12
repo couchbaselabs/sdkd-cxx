@@ -32,10 +32,17 @@ set(COUCHBASE_CXX_CLIENT_INSTALL OFF CACHE BOOL "" FORCE)
 add_subdirectory(${CXX_ROOT} couchbase-cxx-client)
 include_directories(${PROJECT_BINARY_DIR}/couchbase-cxx-client/generated)
 
-set(CXX_SDK_TARGET couchbase_cxx_client::couchbase_cxx_client)
-if(NOT TARGET ${CXX_SDK_TARGET})
-    set(CXX_SDK_TARGET couchbase_cxx_client::couchbase_cxx_client_static)
-endif()
+set(POSSIBLE_TARGETS
+    couchbase_cxx_client::couchbase_cxx_client
+    couchbase_cxx_client::couchbase_cxx_client_static
+    couchbase_cxx_client::couchbase_cxx_client_static_intermediate)
+
+foreach(target IN LISTS POSSIBLE_TARGETS)
+  if(TARGET ${target})
+    set(CXX_SDK_TARGET ${target})
+    break()
+  endif()
+endforeach()
 
 LIST(APPEND LD_DEPS
             ${CXX_SDK_TARGET}
